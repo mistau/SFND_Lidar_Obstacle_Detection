@@ -25,23 +25,56 @@ struct KdTree
 	: root(NULL)
 	{}
 
+        void insert_rec(Node** node, uint depth, std::vector<float> point, int id)
+        {
+          if(*node == NULL){
+            *node = new Node(point, id);
+          }else{
+
+            uint cs = depth % 2;  // component selector
+            if(point[cs] < (*node)->point[cs]) {
+              insert_rec(&((*node)->left), depth+1, point, id);
+            }else{
+              insert_rec(&((*node)->right), depth+1, point, id);
+            }
+          }
+        }
+
 	void insert(std::vector<float> point, int id)
 	{
-		// TODO: Fill in this function to insert a new point into the tree
-		// the function should create a new node and place correctly with in the root 
-
+          // TODO: Fill in this function to insert a new point into the tree
+          // the function should create a new node and place correctly with in the root
+          insert_rec(&root, 0, point, id);
 	}
 
+        void search_rec(std::vector<float> target, Node *node, uint depth, float distanceTol, std::vector<int>& ids)
+        {
+          if(node!=NULL){
+
+            // check bounding box
+            if( (node->point[0]>=(target[0]-distanceTol) && node->point[0]<=(target[0]+distanceTol)) &&
+                 node->point[1]>=(target[1]-distanceTol) && node->point[1]<=(target[1]+distanceTol) )
+              {
+                  float dist = sqrt( (node->point[0] - target[0]) * (node->point[0] - target[0]) +
+                                     (node->point[1] - target[1]) * (node->point[1] - target[1]));
+                  if(dist < distanceTol)
+                    ids.push_back(node->id);
+              }
+
+            // look at additional points
+            uint cs = depth %2;
+            if((target[cs]-distanceTol)<node->point[cs])
+              search_rec(target, node->left,depth+1, distanceTol, ids);
+            if((target[cs]+distanceTol)>node->point[cs])
+              search_rec(target, node->right,depth+1, distanceTol, ids);
+          }
+        }
+  
 	// return a list of point ids in the tree that are within distance of target
 	std::vector<int> search(std::vector<float> target, float distanceTol)
 	{
-		std::vector<int> ids;
-		return ids;
+          std::vector<int> ids;
+          search_rec(target, root, 0, distanceTol, ids);
+          return ids;
 	}
-	
-
 };
-
-
-
-
