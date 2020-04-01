@@ -254,8 +254,6 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     return clusters;
 }
 
-
-// \FIXME parameter cluster should be by reference - check!
 template<typename PointT>
 void ProcessPointClouds<PointT>::cluster_rec(int index, typename pcl::PointCloud<PointT>::Ptr cloud, std::vector<int>& cluster, std::vector<bool>& processed, typename ms::KdTree<PointT>* tree, float distanceTol)
 {
@@ -271,7 +269,6 @@ void ProcessPointClouds<PointT>::cluster_rec(int index, typename pcl::PointCloud
         }
 }
 
-
 template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::ClusteringMS(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
@@ -282,7 +279,8 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     ms::KdTree<PointT> tree;
     
     // insert all points into the tree
-    // \FIXME we should sort and use the median
+    // \TODO    we should sort and use the median here
+    // \COMMENT as execution time is so fast compared to RANSAC considered a minor issue
     for(int idx = 0; idx<cloud->size(); ++idx)
         tree.insert(cloud->points[idx], idx);
     
@@ -373,12 +371,10 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::loadPcd(std::s
 template<typename PointT>
 std::vector<boost::filesystem::path> ProcessPointClouds<PointT>::streamPcd(std::string dataPath)
 {
-
     std::vector<boost::filesystem::path> paths(boost::filesystem::directory_iterator{dataPath}, boost::filesystem::directory_iterator{});
 
     // sort files in accending order so playback is chronological
     sort(paths.begin(), paths.end());
 
     return paths;
-
 }
